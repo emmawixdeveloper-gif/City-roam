@@ -2,3 +2,10 @@ node_modules/
 dist/
 shots/
 /.manus-webdev/preview-identity.json
+# Assets restored from assets.lock.json
+/assets/models/cityroam-courier-animated.glb
+/assets/models/cityroam-courier-rigged.glb
+/assets/models/cityroam-courier.glb
+# Assets restored from assets.lock.json
+/assets/share/favicon.png
+/assets/share/favicon.svg

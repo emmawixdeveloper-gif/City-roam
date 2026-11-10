@@ -1,6 +1,51 @@
 {
   "version": 2,
-  "groups": {},
+  "groups": {
+    "models": {
+      "name": "Models",
+      "order": 10
+    },
+    "share": {
+      "name": "Share",
+      "order": 20
+    }
+  },
   "bundles": {},
-  "assets": {}
+  "assets": {
+    "assets/models/cityroam-courier-animated.glb": {
+      "path": "/manus-storage/game/sha256/302e5896106a0518b681557729c5965f6175506715e654a1c8a912acef5818c2.glb",
+      "sha256": "sha256:302e5896106a0518b681557729c5965f6175506715e654a1c8a912acef5818c2",
+      "size": 3564164,
+      "assetType": "model",
+      "groupId": "models"
+    },
+    "assets/models/cityroam-courier-rigged.glb": {
+      "path": "/manus-storage/game/sha256/500134fe46d8ea7108a1dadc726d0cc1e7fdfbf6412cd50273a6f57717599a63.glb",
+      "sha256": "sha256:500134fe46d8ea7108a1dadc726d0cc1e7fdfbf6412cd50273a6f57717599a63",
+      "size": 3284592,
+      "assetType": "model",
+      "groupId": "models"
+    },
+    "assets/models/cityroam-courier.glb": {
+      "path": "/manus-storage/game/sha256/8d81ca67f5e9cf6d48112e778e9dc2dccf8c9d39438d910ad13d869d10c3ad55.glb",
+      "sha256": "sha256:8d81ca67f5e9cf6d48112e778e9dc2dccf8c9d39438d910ad13d869d10c3ad55",
+      "size": 3133108,
+      "assetType": "model",
+      "groupId": "models"
+    },
+    "assets/share/favicon.png": {
+      "path": "/manus-storage/game/sha256/c2be6606a7f1197ed63c08750c82179eeeabb69c9fce336295378346283c14ac.png",
+      "sha256": "sha256:c2be6606a7f1197ed63c08750c82179eeeabb69c9fce336295378346283c14ac",
+      "size": 678,
+      "assetType": "image",
+      "groupId": "share"
+    },
+    "assets/share/favicon.svg": {
+      "path": "/manus-storage/game/sha256/2cc558b06a7a6bdcc56d015fb66b7539134cea5af5f5a465305c47032100f4f5.svg",
+      "sha256": "sha256:2cc558b06a7a6bdcc56d015fb66b7539134cea5af5f5a465305c47032100f4f5",
+      "size": 308,
+      "assetType": "image",
+      "groupId": "share"
+    }
+  }
 }
