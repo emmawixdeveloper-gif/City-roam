@@ -11,6 +11,7 @@ import { tuning } from './tuning'
 import { Player, type PlayerEvent } from './player'
 import { damage, createRun, tick, type RunState } from './rules'
 import { World, type CityStatus } from './world'
+import { VehicleSystem } from './vehicles'
 
 export type Mode = 'attract' | 'playing' | 'paused' | 'ended'
 export type Hint = 'move' | 'look' | 'jump'
@@ -32,6 +33,7 @@ export class Game {
   private readonly world: World
   private readonly player: Player
   private readonly cam: FollowCamera
+  private readonly vehicles: VehicleSystem
   private simTime = 0
   private time = 0
   private tutorial: Hint | null = null
@@ -48,6 +50,7 @@ export class Game {
     this.physics = new Physics(CONFIG.player.gravity)
     this.world = new World(this.physics, renderer.shadowMapSize)
     this.player = new Player(this.physics, this.world.spawn, this.world.movers)
+    this.vehicles = new VehicleSystem(this.physics, this.world.scene)
     void this.player.loadHero(courierUrl)
     this.cam = new FollowCamera(this.physics, this.player.collider)
     this.world.scene.add(this.player.root, this.player.shadowMesh)
@@ -59,7 +62,9 @@ export class Game {
 
   start(tutorial: boolean): void {
     tuning.activate('run')
+    this.vehicles?.reset()
     this.player.teleport(this.world.spawn)
+    this.player.setVisible(true)
     this.player.facing = 0
     this.cam.pitch = 0.36
     this.cam.reset(this.world.spawn, 0.22)
@@ -101,17 +106,28 @@ export class Game {
 
   cityStatus(): CityStatus {
     const status = this.world.status
-    return { ...status, district: this.world.districtAt(this.player.position) }
+    const focus = this.focusPosition()
+    const vehicle = this.vehicles?.status(focus) ?? { vehicle: 'vehicle.onFoot' as const, prompt: '' as const, speed: 0 }
+    return { ...status, district: this.world.districtAt(focus), destination: vehicle.prompt || this.world.destinationAt(focus), vehicle: vehicle.vehicle }
   }
 
   step(dt: number): void {
     this.simTime += dt
     const jumpPressed = this.input.consume('jump')
+    const interactPressed = this.input.consume('interact')
     const playing = this.mode === 'playing'
     this.world.stepMovers()
+    if (playing && this.vehicles?.active) {
+      if (interactPressed) {
+        const exit = this.vehicles.exit(this.focusPosition())
+        if (exit) { this.player.teleport(exit); this.player.setVisible(true) }
+      } else this.vehicles.step(dt, this.input)
+    } else if (playing && interactPressed && this.vehicles?.tryEnter(this.player.position)) {
+      this.player.setVisible(false)
+    }
     const events: PlayerEvent[] = []
     if (playing) {
-      this.player.step(dt, {
+      if (!this.vehicles?.active) this.player.step(dt, {
         moveX: this.input.move.x,
         moveY: this.input.move.y,
         sprint: this.input.held('sprint'),
@@ -148,7 +164,7 @@ export class Game {
   render(alpha: number, frameSeconds: number): void {
     this.time += frameSeconds
     this.physics.sync(alpha)
-    const target = this.player.root.position
+    const target = this.focusPosition()
     if (this.mode === 'attract') {
       const t = this.time * 0.055 + 0.9
       const cam = this.cam.camera
@@ -162,7 +178,7 @@ export class Game {
       }
       this.cam.update(target, look, frameSeconds, false, this.reducedMotion)
     }
-    this.player.animate(frameSeconds, this.time, this.run.invulnerable > 0 && this.mode === 'playing', this.groundBelow(target))
+    this.player.animate(frameSeconds, this.time, this.run.invulnerable > 0 && this.mode === 'playing', this.groundBelow(this.player.root.position))
     this.world.update(frameSeconds, target)
     this.renderer.render(this.world.scene, this.cam.camera)
   }
@@ -190,5 +206,9 @@ export class Game {
     this.down.origin = { x: p.x, y: p.y, z: p.z }
     const hit = this.physics.world.castRay(this.down, 30, true, undefined, undefined, this.player.collider)
     return hit ? p.y - hit.timeOfImpact : null
+  }
+
+  private focusPosition(): THREE.Vector3 {
+    return this.vehicles?.activeVehicle?.position.clone() ?? this.player.position
   }
 }

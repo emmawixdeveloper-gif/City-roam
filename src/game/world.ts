@@ -49,7 +49,8 @@ export type MovingPlatform = {
 
 export type DroneRoute = { center: THREE.Vector3; radius: number; phase: number; dir: 1 | -1 }
 
-export type CityStatus = { time: string; district: string; daylight: number }
+export type Destination = { name: string; kind: 'shop' | 'supermarket' | 'restaurant' | 'mall' | 'petrol' | 'park'; position: THREE.Vector3; radius: number }
+export type CityStatus = { time: string; district: string; daylight: number; destination?: string; vehicle?: 'vehicle.onFoot' | 'vehicle.driving' }
 
 type Lamp = { light: THREE.PointLight; glow: THREE.Mesh }
 
@@ -104,6 +105,7 @@ export class World {
     { name: 'Civic Center', position: new THREE.Vector3(16, 0, -16) },
     { name: 'South Market', position: new THREE.Vector3(-48, 0, 80) },
   ]
+  readonly destinations: Destination[] = []
   private readonly sky: THREE.Mesh
   private readonly skyUniforms: { top: { value: THREE.Color }; horizon: { value: THREE.Color }; sun: { value: THREE.Vector3 } }
   private readonly windowMats: THREE.MeshStandardMaterial[] = []
@@ -139,6 +141,7 @@ export class World {
     this.addCityBlocks()
     this.addRiverfront()
     this.addLandmarks()
+    this.addCityLife()
   }
 
   get status(): CityStatus {
@@ -155,6 +158,11 @@ export class World {
       if (d < best) { best = d; closest = landmark }
     }
     return closest.name
+  }
+
+  destinationAt(position: THREE.Vector3): string | undefined {
+    const found = this.destinations.find(destination => destination.position.distanceToSquared(position) < destination.radius * destination.radius)
+    return found?.name
   }
 
   update(dt: number, focus: THREE.Vector3): void {
@@ -378,6 +386,58 @@ export class World {
       if (Math.hypot(x, z) < 18) continue
       this.addCar(x, z, random() > 0.5 ? 0 : Math.PI / 2, i % 3)
     }
+  }
+
+  private addCityLife(): void {
+    this.addCrosswalk(0, 0, 0)
+    this.addCrosswalk(32, 0, Math.PI / 2)
+    this.addCrosswalk(-32, 0, Math.PI / 2)
+    this.addHighwayConnector()
+    this.addDestination('Harbor Market', 'supermarket', -74, -46, '#e4a762', 12, 7)
+    this.addDestination('Juniper Eats', 'restaurant', 74, 46, '#d7766e', 9, 7)
+    this.addDestination('Civic Arcade', 'mall', 18, -46, '#6fa6b5', 18, 10)
+    this.addDestination('Northline Fuel', 'petrol', -18, 46, '#d0c06a', 11, 7)
+    this.addDestination('Corner Shop', 'shop', 46, 18, '#8c79ad', 8, 6)
+    this.destinations.push({ name: 'Riverside Park', kind: 'park', position: new THREE.Vector3(-92, 0, 42), radius: 15 })
+  }
+
+  private addHighwayConnector(): void {
+    const highway = mat('#101c2b', { roughness: 0.96 })
+    const shoulder = mat('#5a6870', { roughness: 0.95 })
+    this.addMesh(new THREE.BoxGeometry(9, 0.08, CITY - 8), new THREE.Vector3(94, 0.03, 0), highway)
+    this.addMesh(new THREE.BoxGeometry(0.35, 0.04, CITY - 8), new THREE.Vector3(89.5, 0.09, 0), shoulder)
+    this.addMesh(new THREE.BoxGeometry(0.35, 0.04, CITY - 8), new THREE.Vector3(98.5, 0.09, 0), shoulder)
+    for (let z = -112; z <= 112; z += 9) this.addMesh(new THREE.BoxGeometry(0.2, 0.03, 4), new THREE.Vector3(94, 0.1, z), mat(palette.lane, { roughness: 0.8 }))
+  }
+
+  private addCrosswalk(x: number, z: number, rotation: number): void {
+    const stripe = mat('#e6e4d2', { roughness: 0.9 })
+    const group = new THREE.Group()
+    group.position.set(x, 0.105, z)
+    group.rotation.y = rotation
+    for (let i = -4; i <= 4; i += 1) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.025, 5.6), stripe)
+      bar.position.x = i * 1.2
+      group.add(bar)
+    }
+    this.scene.add(group)
+  }
+
+  private addDestination(name: string, kind: Destination['kind'], x: number, z: number, color: string, width: number, depth: number): void {
+    const height = kind === 'mall' ? 8 : 4.4
+    const building = new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), mat(color, { roughness: 0.74 }))
+    building.position.set(x, height / 2, z)
+    building.castShadow = true
+    building.receiveShadow = true
+    this.scene.add(building)
+    this.physics.addStaticBox(building.position, new THREE.Vector3(width, height, depth))
+    const fascia = new THREE.Mesh(new THREE.BoxGeometry(width * 0.86, 0.55, 0.12), mat('#203448', { emissive: '#174b5c', emissiveIntensity: 0.42, roughness: 0.45 }))
+    fascia.position.set(x, height * 0.62, z + depth / 2 + 0.08)
+    this.scene.add(fascia)
+    const canopy = new THREE.Mesh(new THREE.BoxGeometry(Math.min(7, width * 0.7), 0.22, 1.1), mat('#f5bd78', { roughness: 0.55 }))
+    canopy.position.set(x, 2.4, z + depth / 2 + 0.7)
+    this.scene.add(canopy)
+    this.destinations.push({ name, kind, position: new THREE.Vector3(x, 0, z), radius: Math.max(8, Math.min(width, depth) * 1.3) })
   }
 
   private addSign(x: number, y: number, z: number, text: string): void {

@@ -53,5 +53,10 @@
   "results.lives":"You took a wrong turn, but the route is saved.",
   "touch.jump":"JUMP",
   "touch.run":"RUN",
-  "touch.pause":"Pause"
+  "touch.pause":"Pause",
+  "touch.interact":"INTERACT",
+  "vehicle.onFoot":"ON FOOT",
+  "vehicle.driving":"DRIVING",
+  "vehicle.enter":"E TO DRIVE",
+  "vehicle.exit":"E TO EXIT"
 }

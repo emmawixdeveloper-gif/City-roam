@@ -34,6 +34,7 @@ export class Player {
   private dashCooldown = 0
   private squash = 0
   private runCycle = 0
+  private visible = true
   private platform?: MovingPlatform
   readonly safe = new THREE.Vector3()
   private safeTimer = 0
@@ -62,6 +63,12 @@ export class Player {
   get shadowMesh(): THREE.Mesh { return this.shadow }
   get position(): THREE.Vector3 { const t = this.body.translation(); return new THREE.Vector3(t.x, t.y, t.z) }
   get dashing(): boolean { return this.dashTime > 0 }
+
+  setVisible(visible: boolean): void {
+    this.visible = visible
+    this.root.visible = visible
+    this.shadow.visible = visible
+  }
 
   /** Load the registered hero asset without blocking the first playable frame. */
   async loadHero(url: string): Promise<void> {
@@ -173,6 +180,7 @@ export class Player {
   }
 
   animate(frameSeconds: number, time: number, invulnerable: boolean, ground: number | null): void {
+    if (!this.visible) { this.shadow.visible = false; return }
     const speed = Math.hypot(this.velocity.x, this.velocity.z)
     if (this.mixer) {
       const next = this.grounded && speed > 0.45 ? this.walkAction : this.idleAction

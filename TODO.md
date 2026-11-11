@@ -51,3 +51,23 @@
 - [x] `pnpm smoke` passes in Chromium: desktop movement/jump/pause/settings and mobile HUD, with no console errors.
 - [x] Generated courier asset is synced and the animated GLB is loaded through the Three.js runtime with a procedural fallback.
 - [x] First-complete game sharing preparation is installed, the City Roam favicon is registered, and the build emits the sharing metadata.
+
+## City-life environment transformation — in progress
+
+- [x] Preserve the existing City Roam project rather than creating a new project; keep its Three.js and Rapier architecture, engine systems, physics, renderer, input system, asset loader, and project structure wherever possible.
+- [x] Remove the old floating-island/energy-core/patrol-drone objective framing from the active game loop; the current world is a city exploration loop with no collectible objective.
+- [x] Expand the explorable city with clearly readable realistic roads/highway connectors, residential neighbourhoods, tall buildings/apartments, shops and supermarkets, restaurants and shopping centres, petrol stations, parks/recreation areas, streetlights, traffic lights, sidewalks, pedestrian crossings, and neighbourhood road connections.
+
+## Player and vehicle life — in progress
+
+- [x] Preserve the animated human/courier character, third-person camera, walking/running, jumping, smooth movement, movement-facing rotation, camera follow, and collision detection.
+- [x] Implement drivable cars with acceleration, braking, steering, reverse, entry, exit, and a driving HUD.
+- [x] Preserve parked vehicles as part of the city detail.
+- [x] Add lightweight basic AI traffic on the city road network.
+- [x] Add a nearby interaction flow for entering/exiting cars and discovering city-life destinations.
+
+## Controls — in progress
+
+- [x] Preserve computer WASD/arrow movement, mouse camera, Space jump, and Shift sprint.
+- [x] Add desktop interaction/vehicle entry and exit through E, with Space functioning as brake while driving.
+- [x] Add mobile interaction, jump, sprint, camera drag, and vehicle-aware controls while preserving the existing left virtual joystick.
