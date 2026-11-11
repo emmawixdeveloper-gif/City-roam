@@ -71,3 +71,14 @@
 - [x] Preserve computer WASD/arrow movement, mouse camera, Space jump, and Shift sprint.
 - [x] Add desktop interaction/vehicle entry and exit through E, with Space functioning as brake while driving.
 - [x] Add mobile interaction, jump, sprint, camera drag, and vehicle-aware controls while preserving the existing left virtual joystick.
+
+## Camera settings and view modes
+
+- [x] Add fully functional FPS, TPS, Close Third-Person, and Wide Third-Person camera modes; these are real runtime perspectives, not settings-only labels.
+- [x] Add a camera mode selector in the game settings and allow the mode to change while playing.
+- [x] Add a dedicated mobile camera-switch button, preserve mouse camera control on PC, and preserve touchscreen camera rotation on mobile.
+- [x] Add adjustable camera sensitivity, adjustable third-person camera distance, and camera inversion settings.
+- [x] Keep the camera collision-aware so third-person views do not pass through buildings or solid objects; FPS eye/cabin positioning also performs a near-geometry correction.
+- [x] Make camera transitions smooth when switching perspectives.
+- [x] Save and restore the player’s preferred camera mode and distance through the existing local save system.
+- [x] Verify FPS/TPS camera behavior while walking, running, jumping, and driving through browser smoke coverage.

@@ -38,6 +38,9 @@
   "settings.controls":"Controls",
   "settings.sensitivity":"Look sensitivity",
   "settings.invertY":"Invert vertical look",
+  "settings.camera":"Camera",
+  "settings.cameraMode":"View mode",
+  "settings.cameraDistance":"Third-person distance",
   "settings.display":"Display",
   "settings.quality":"Graphics",
   "settings.quality.low":"Low",
@@ -54,9 +57,14 @@
   "touch.jump":"JUMP",
   "touch.run":"RUN",
   "touch.pause":"Pause",
+  "touch.camera":"VIEW",
   "touch.interact":"INTERACT",
   "vehicle.onFoot":"ON FOOT",
   "vehicle.driving":"DRIVING",
   "vehicle.enter":"E TO DRIVE",
   "vehicle.exit":"E TO EXIT"
+  ,"camera.fps":"FPS"
+  ,"camera.tps":"TPS"
+  ,"camera.close":"CLOSE TPS"
+  ,"camera.wide":"WIDE TPS"
 }

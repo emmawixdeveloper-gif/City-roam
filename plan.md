@@ -16,6 +16,8 @@ City Roam is an offline, single-player Three.js browser game prototype. This tra
 - Add `src/game/vehicles.ts` as a focused vehicle simulation layer: procedural drivable cars use Rapier kinematic bodies for solid world-aware placement, arcade acceleration/braking/steering/reverse, entry/exit state, parked-car interaction, and bounded traffic routes. Vehicle controls reuse the unified input actions instead of bypassing the engine.
 - Expand the world with readable city-life destinations—shops, supermarket, restaurants, shopping centre, petrol station, residential pocket, civic park, and highway connectors—using inexpensive procedural meshes and collision geometry. Add an interaction registry so the HUD can surface nearby destination/car prompts without adding server state.
 - Extend the touch layer with an interaction button and a driving-aware HUD. On foot, the left joystick, right-side drag, jump, sprint, and interact controls remain available; while driving, the same movement axes steer/throttle/reverse, jump becomes brake, and interact exits the car. Desktop uses `E` for interaction/enter/exit, `WASD` for driving, `Space` for braking, and `Shift` for a temporary speed bias.
+- Extend `src/game/camera.ts` with four functional modes: FPS, TPS, close TPS, and wide TPS. FPS places the camera at the character/car eye point and uses the same yaw/pitch look state that drives camera-relative on-foot movement; third-person modes retain the collision-aware boom with distinct distances. Mode transitions use damped position/quaternion interpolation.
+- Persist `cameraMode`, `cameraDistance`, `sensitivity`, and `invertY` through the existing versioned local save. The settings panel exposes a four-option selector and a third-person distance slider; `V` and a dedicated touch button cycle modes during play. Camera state is applied on boot, live while paused/settings are open, and while walking, jumping, or driving.
 
 ## Project structure
 
@@ -23,6 +25,7 @@ City Roam is an offline, single-player Three.js browser game prototype. This tra
 - `src/game/vehicles.ts`: parked/traffic/drivable car meshes, kinematic bodies, vehicle state, AI routes, and entry/exit/handling logic.
 - `src/game/player.ts`: third-person kinematic controller, courier model, locomotion animation.
 - `src/game/camera.ts`: smooth orbit follow and collision-aware boom.
+- `src/game/camera.ts`: smooth FPS/TPS/close-TPS/wide-TPS camera, collision handling, mode cycling, distance preference, and transition interpolation.
 - `src/game/game.ts`: scene lifecycle, day clock, pause/title flow, HUD telemetry, interaction hooks.
 - `src/engine/*`: preserved engine contracts for renderer, Rapier, audio, loop, save, and input.
 - `src/ui/ui.ts`, `src/ui/touch.ts`, `src/styles/main.css`: responsive title/settings/HUD/pause/menu and dual touch joysticks.

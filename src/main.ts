@@ -23,7 +23,11 @@ async function boot(): Promise<void> {
     input.sensitivity = d.sensitivity
     input.invertY = d.invertY
     audio.setVolumes(d.musicVolume, d.sfxVolume, d.muted)
-    if (game) game.reducedMotion = d.reducedMotion
+    if (game) {
+      game.reducedMotion = d.reducedMotion
+      game.setCameraMode(d.cameraMode)
+      game.setCameraDistance(d.cameraDistance)
+    }
   }
 
   const startRun = (tutorial: boolean) => {
@@ -97,7 +101,7 @@ async function boot(): Promise<void> {
       window.setTimeout(() => ui.showResults(run), run.phase === 'won' ? 1400 : 900)
     },
   })
-  game.reducedMotion = save.data.reducedMotion
+  applySettings(save.data)
   if (import.meta.env.DEV) {
     const [{ registerGameTuning }, { tuning }] = await Promise.all([
       import('../scripts/manus-tuning/adapter.js'), import('./game/tuning'),

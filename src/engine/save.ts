@@ -4,6 +4,7 @@
  */
 export type Locale = 'en' | 'zh-CN'
 export type Quality = 'low' | 'medium' | 'high'
+export type CameraMode = 'fps' | 'tps' | 'close' | 'wide'
 
 export type ScoreEntry = { name: string; score: number; seconds: number; at: number }
 
@@ -16,6 +17,8 @@ export type SaveData = {
   muted: boolean
   sensitivity: number
   invertY: boolean
+  cameraMode: CameraMode
+  cameraDistance: number
   quality: Quality
   reducedMotion: boolean
   tutorialDone: boolean
@@ -35,6 +38,8 @@ export function defaultSave(): SaveData {
     muted: false,
     sensitivity: 1,
     invertY: false,
+    cameraMode: 'tps',
+    cameraDistance: 6.4,
     quality: 'high',
     reducedMotion: false,
     tutorialDone: false,
@@ -67,6 +72,8 @@ export function parseSave(raw: string | null): SaveData {
     muted: data.muted === true,
     sensitivity: typeof data.sensitivity === 'number' && data.sensitivity >= 0.2 && data.sensitivity <= 3 ? data.sensitivity : base.sensitivity,
     invertY: data.invertY === true,
+    cameraMode: data.cameraMode === 'fps' || data.cameraMode === 'tps' || data.cameraMode === 'close' || data.cameraMode === 'wide' ? data.cameraMode : base.cameraMode,
+    cameraDistance: typeof data.cameraDistance === 'number' && data.cameraDistance >= 2.5 && data.cameraDistance <= 12 ? data.cameraDistance : base.cameraDistance,
     quality: data.quality === 'low' || data.quality === 'medium' || data.quality === 'high' ? data.quality : base.quality,
     reducedMotion: data.reducedMotion === true,
     tutorialDone: data.tutorialDone === true,

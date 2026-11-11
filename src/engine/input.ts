@@ -4,7 +4,7 @@
  *
  * Call `endFrame()` once per rendered frame after gameplay consumed edge-triggered presses.
  */
-export type Action = 'jump' | 'sprint' | 'dash' | 'pause' | 'confirm' | 'back' | 'interact'
+export type Action = 'jump' | 'sprint' | 'dash' | 'pause' | 'confirm' | 'back' | 'interact' | 'cameraSwitch'
 export type InputMethod = 'keyboard' | 'gamepad' | 'touch'
 
 const KEY_BINDINGS: Record<Action, string[]> = {
@@ -16,10 +16,11 @@ const KEY_BINDINGS: Record<Action, string[]> = {
   // Menus handle Escape/Backspace themselves via DOM keydown; `back` is the gamepad B button.
   back: [],
   interact: ['KeyE'],
+  cameraSwitch: ['KeyV'],
 }
 const MOVE_KEYS = { up: ['KeyW', 'ArrowUp'], down: ['KeyS', 'ArrowDown'], left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'] }
 // Standard gamepad mapping: A=0, B=1, X=2, Y=3, LB=4, RB=5, RT=7, Start=9, L3=10.
-const PAD_BINDINGS: Record<Action, number[]> = { jump: [0], sprint: [4, 10], dash: [2, 5, 7], pause: [9], confirm: [0], back: [1], interact: [3] }
+const PAD_BINDINGS: Record<Action, number[]> = { jump: [0], sprint: [4, 10], dash: [2, 5, 7], pause: [9], confirm: [0], back: [1], interact: [3], cameraSwitch: [6] }
 
 export class Input {
   /** Movement intent in [-1, 1]: x = strafe right, y = forward. */

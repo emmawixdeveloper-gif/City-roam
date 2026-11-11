@@ -5,7 +5,7 @@ import type { Input } from '../engine/input'
 import { Physics, RAPIER } from '../engine/physics'
 import type { Renderer } from '../engine/renderer'
 import type { Quality } from '../engine/save'
-import { FollowCamera } from './camera'
+import { FollowCamera, type CameraMode } from './camera'
 import { CONFIG } from './config'
 import { tuning } from './tuning'
 import { Player, type PlayerEvent } from './player'
@@ -59,6 +59,11 @@ export class Game {
   }
 
   get camera(): THREE.PerspectiveCamera { return this.cam.camera }
+  get cameraMode(): CameraMode { return this.cam.mode }
+
+  setCameraMode(mode: CameraMode): void { this.cam.setMode(mode) }
+  setCameraDistance(distance: number): void { this.cam.setDistance(distance) }
+  cycleCameraMode(): CameraMode { return this.cam.cycle() }
 
   start(tutorial: boolean): void {
     tuning.activate('run')
@@ -108,14 +113,15 @@ export class Game {
     const status = this.world.status
     const focus = this.focusPosition()
     const vehicle = this.vehicles?.status(focus) ?? { vehicle: 'vehicle.onFoot' as const, prompt: '' as const, speed: 0 }
-    return { ...status, district: this.world.districtAt(focus), destination: vehicle.prompt || this.world.destinationAt(focus), vehicle: vehicle.vehicle }
+    return { ...status, district: this.world.districtAt(focus), destination: vehicle.prompt || this.world.destinationAt(focus), vehicle: vehicle.vehicle, camera: `camera.${this.cam.mode}` }
   }
 
   step(dt: number): void {
     this.simTime += dt
+    const playing = this.mode === 'playing'
     const jumpPressed = this.input.consume('jump')
     const interactPressed = this.input.consume('interact')
-    const playing = this.mode === 'playing'
+    if (playing && this.input.consume('cameraSwitch')) this.cam.cycle()
     this.world.stepMovers()
     if (playing && this.vehicles?.active) {
       if (interactPressed) {
@@ -124,6 +130,7 @@ export class Game {
       } else this.vehicles.step(dt, this.input)
     } else if (playing && interactPressed && this.vehicles?.tryEnter(this.player.position)) {
       this.player.setVisible(false)
+      if (this.vehicles.activeVehicle) this.cam.yaw = this.vehicles.activeVehicle.rotation.y
     }
     const events: PlayerEvent[] = []
     if (playing) {
@@ -176,7 +183,7 @@ export class Game {
         this.tutorialLook += Math.abs(look.x) + Math.abs(look.y)
         if (this.tutorialLook > 0.05) this.advanceTutorial('jump')
       }
-      this.cam.update(target, look, frameSeconds, false, this.reducedMotion)
+      this.cam.update(this.cameraTarget(), look, frameSeconds, false, this.reducedMotion)
     }
     this.player.animate(frameSeconds, this.time, this.run.invulnerable > 0 && this.mode === 'playing', this.groundBelow(this.player.root.position))
     this.world.update(frameSeconds, target)
@@ -210,5 +217,14 @@ export class Game {
 
   private focusPosition(): THREE.Vector3 {
     return this.vehicles?.activeVehicle?.position.clone() ?? this.player.position
+  }
+
+  private cameraTarget(): THREE.Vector3 {
+    const focus = this.focusPosition()
+    if (this.cam.mode !== 'fps') return focus
+    const eye = focus.add(new THREE.Vector3(0, this.vehicles?.active ? 1.15 : 1.28, 0))
+    const vehicle = this.vehicles?.activeVehicle
+    if (vehicle) eye.add(new THREE.Vector3(0, 0, -0.42).applyAxisAngle(new THREE.Vector3(0, 1, 0), vehicle.rotation.y))
+    return eye
   }
 }

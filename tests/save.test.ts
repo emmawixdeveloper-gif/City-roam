@@ -19,6 +19,15 @@ describe('save', () => {
     expect(s.playerName).toBe('a very long play')
   })
 
+  it('persists camera preferences and rejects invalid camera values', () => {
+    const saved = parseSave(JSON.stringify({ version: 1, cameraMode: 'fps', cameraDistance: 10.5 }))
+    expect(saved.cameraMode).toBe('fps')
+    expect(saved.cameraDistance).toBe(10.5)
+    const fallback = parseSave(JSON.stringify({ version: 1, cameraMode: 'orbit', cameraDistance: 99 }))
+    expect(fallback.cameraMode).toBe('tps')
+    expect(fallback.cameraDistance).toBe(6.4)
+  })
+
   it('keeps a bounded, ordered leaderboard', () => {
     let board = [] as ReturnType<typeof defaultSave>['leaderboard']
     for (let i = 0; i < LEADERBOARD_SIZE + 3; i += 1) board = insertScore(board, { name: `p${i}`, score: i * 10, seconds: 60, at: i }).board

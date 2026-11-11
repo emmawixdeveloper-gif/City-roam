@@ -50,7 +50,7 @@ export type MovingPlatform = {
 export type DroneRoute = { center: THREE.Vector3; radius: number; phase: number; dir: 1 | -1 }
 
 export type Destination = { name: string; kind: 'shop' | 'supermarket' | 'restaurant' | 'mall' | 'petrol' | 'park'; position: THREE.Vector3; radius: number }
-export type CityStatus = { time: string; district: string; daylight: number; destination?: string; vehicle?: 'vehicle.onFoot' | 'vehicle.driving' }
+export type CityStatus = { time: string; district: string; daylight: number; destination?: string; vehicle?: 'vehicle.onFoot' | 'vehicle.driving'; camera?: 'camera.fps' | 'camera.tps' | 'camera.close' | 'camera.wide' }
 
 type Lamp = { light: THREE.PointLight; glow: THREE.Mesh }
 

@@ -38,6 +38,9 @@
   "settings.controls":"操作",
   "settings.sensitivity":"视角灵敏度",
   "settings.invertY":"反转垂直视角",
+  "settings.camera":"镜头",
+  "settings.cameraMode":"视角模式",
+  "settings.cameraDistance":"第三人称距离",
   "settings.display":"画面",
   "settings.quality":"画质",
   "settings.quality.low":"低",
@@ -54,9 +57,14 @@
   "touch.jump":"跳跃",
   "touch.run":"奔跑",
   "touch.pause":"暂停",
+  "touch.camera":"视角",
   "touch.interact":"互动",
   "vehicle.onFoot":"步行",
   "vehicle.driving":"驾驶中",
   "vehicle.enter":"按 E 驾驶",
   "vehicle.exit":"按 E 下车"
+  ,"camera.fps":"第一人称"
+  ,"camera.tps":"第三人称"
+  ,"camera.close":"近距离第三人称"
+  ,"camera.wide":"广角第三人称"
 }
