@@ -75,6 +75,8 @@ export class Player {
     try {
       const gltf = await new GLTFLoader().loadAsync(url)
       const hero = gltf.scene
+      // The generated asset's authored forward axis is -X; City Roam locomotion uses -Z.
+      hero.rotation.y = -Math.PI / 2
       const bounds = new THREE.Box3().setFromObject(hero)
       const size = bounds.getSize(new THREE.Vector3())
       const scale = 1.78 / Math.max(size.y, 0.01)

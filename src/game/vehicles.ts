@@ -20,6 +20,7 @@ type Vehicle = {
   ai: boolean
   lane?: Lane
   color: string
+  steering: number
 }
 
 const CITY_EDGE = 112
@@ -34,7 +35,7 @@ export class VehicleSystem {
   private readonly ray = new RAPIER.Ray({ x: 0, y: BODY_Y + 0.08, z: 0 }, { x: 0, y: 0, z: -1 })
 
   constructor(private readonly physics: Physics, private readonly scene: THREE.Scene) {
-    this.addDrivable('sedan-cyan', new THREE.Vector3(3.6, BODY_Y, 8), Math.PI, '#3e9fb3')
+    this.addDrivable('sedan-cyan', new THREE.Vector3(3.6, BODY_Y, 8), 0, '#3e9fb3')
     this.addDrivable('hatchback-amber', new THREE.Vector3(-7, BODY_Y, 8), 0, '#d6a05e')
     this.addTraffic('traffic-east', new THREE.Vector3(-108, BODY_Y, -32), 0, { axis: 'x', lane: -32, direction: 1 }, '#c96561')
     this.addTraffic('traffic-west', new THREE.Vector3(108, BODY_Y, 32), Math.PI, { axis: 'x', lane: 32, direction: -1 }, '#4c86a4')
@@ -87,16 +88,28 @@ export class VehicleSystem {
     const steering = THREE.MathUtils.clamp(input.move.x, -1, 1)
     const braking = input.held('jump')
     const boosting = input.held('sprint')
-    if (braking) active.speed = THREE.MathUtils.damp(active.speed, 0, 13, dt)
-    else if (Math.abs(throttle) > 0.05) {
-      const maxSpeed = boosting ? 28 : 22
-      active.speed = THREE.MathUtils.clamp(active.speed + throttle * (throttle < 0 ? 13 : 18) * dt, -10, maxSpeed)
-    } else active.speed = THREE.MathUtils.damp(active.speed, 0, 2.6, dt)
+    const maxForward = boosting ? 24 : 18
+    const maxReverse = 7
+    const sameDirection = throttle === 0 || Math.sign(throttle) === Math.sign(active.speed) || Math.abs(active.speed) < 0.5
+    if (braking) active.speed = THREE.MathUtils.damp(active.speed, 0, 15, dt)
+    else if (Math.abs(throttle) > 0.05 && sameDirection) {
+      const target = throttle > 0 ? maxForward : -maxReverse
+      const response = throttle > 0 ? 5.8 : 4.8
+      active.speed = THREE.MathUtils.damp(active.speed, target * Math.abs(throttle), response, dt)
+    } else if (Math.abs(throttle) > 0.05) {
+      // Opposite input first brakes the car; it only enters reverse after nearly stopping.
+      active.speed = THREE.MathUtils.damp(active.speed, 0, 15, dt)
+    } else active.speed = THREE.MathUtils.damp(active.speed, 0, 3.8, dt)
     if (Math.abs(active.speed) > 0.2) {
-      const steeringRate = 1.55 * THREE.MathUtils.clamp(Math.abs(active.speed) / 8, 0.22, 1)
-      active.yaw += steering * steeringRate * dt * (active.speed < 0 ? -1 : 1)
-    }
-    const forward = new THREE.Vector3(-Math.sin(active.yaw), 0, -Math.cos(active.yaw))
+      const steeringTarget = steering * THREE.MathUtils.clamp(Math.abs(active.speed) / 5, 0, 1)
+      active.steering = THREE.MathUtils.damp(active.steering, steeringTarget, 10, dt)
+      const steeringRate = 0.85 * THREE.MathUtils.clamp(Math.abs(active.speed) / 7, 0.15, 1)
+      active.yaw += active.steering * steeringRate * dt * (active.speed < 0 ? -1 : 1)
+    } else active.steering = THREE.MathUtils.damp(active.steering, 0, 12, dt)
+    if (Math.abs(active.speed) < 0.35 && Math.abs(throttle) < 0.05) active.speed = 0
+    if (Math.abs(active.speed) < 0.35 && throttle < -0.05) active.speed = -0.4
+    // Vehicle meshes are lengthwise on +X. yaw=0 therefore points the hood east.
+    const forward = new THREE.Vector3(Math.cos(active.yaw), 0, Math.sin(active.yaw))
     this.ray.origin.x = active.root.position.x
     this.ray.origin.y = BODY_Y + 0.1
     this.ray.origin.z = active.root.position.z
@@ -120,13 +133,13 @@ export class VehicleSystem {
       if (next.x > CITY_EDGE + 4) next.x = -CITY_EDGE - 4
       if (next.x < -CITY_EDGE - 4) next.x = CITY_EDGE + 4
       next.z = lane.lane
-      vehicle.yaw = lane.direction > 0 ? -Math.PI / 2 : Math.PI / 2
+      vehicle.yaw = lane.direction > 0 ? 0 : Math.PI
     } else {
       next.z += lane.direction * vehicle.speed * dt
       if (next.z > CITY_EDGE + 4) next.z = -CITY_EDGE - 4
       if (next.z < -CITY_EDGE - 4) next.z = CITY_EDGE + 4
       next.x = lane.lane
-      vehicle.yaw = lane.direction > 0 ? 0 : Math.PI
+      vehicle.yaw = lane.direction > 0 ? Math.PI / 2 : -Math.PI / 2
     }
     vehicle.body.setNextKinematicTranslation({ x: next.x, y: BODY_Y, z: next.z })
     vehicle.body.setNextKinematicRotation(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), vehicle.yaw))
@@ -164,7 +177,7 @@ export class VehicleSystem {
     this.scene.add(root)
     const collider = RAPIER.ColliderDesc.cuboid(VEHICLE_LENGTH / 2, VEHICLE_HALF_HEIGHT, VEHICLE_WIDTH / 2).setFriction(0.76)
     const bodyHandle = this.physics.addKinematic(root, collider)
-    const vehicle: Vehicle = { id: spec.id, root, body: bodyHandle, collider: bodyHandle.collider(0), yaw: spec.yaw, speed: spec.ai ? 5 : 0, ai: spec.ai, lane: spec.lane, color: spec.color }
+    const vehicle: Vehicle = { id: spec.id, root, body: bodyHandle, collider: bodyHandle.collider(0), yaw: spec.yaw, speed: spec.ai ? 5 : 0, ai: spec.ai, lane: spec.lane, color: spec.color, steering: 0 }
     this.vehicles.push(vehicle)
   }
 
