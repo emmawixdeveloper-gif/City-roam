@@ -110,7 +110,7 @@ export class World {
   private readonly skyUniforms: { top: { value: THREE.Color }; horizon: { value: THREE.Color }; sun: { value: THREE.Vector3 } }
   private readonly windowMats: THREE.MeshStandardMaterial[] = []
   private readonly lamps: Lamp[] = []
-  private timeOfDay = 17.5
+  private timeOfDay = 8
 
   constructor(private readonly physics: Physics, shadowMapSize: number) {
     this.skyUniforms = {
@@ -150,6 +150,9 @@ export class World {
     return { time: `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`, district: 'Civic Center', daylight: this.daylight() }
   }
 
+  setTimeOfDay(hour: number): void { this.timeOfDay = ((hour % 24) + 24) % 24 }
+  get currentTimeOfDay(): number { return this.timeOfDay }
+
   districtAt(position: THREE.Vector3): string {
     let closest = this.landmarks[0]
     let best = Infinity
@@ -173,7 +176,7 @@ export class World {
     const sunDir = new THREE.Vector3(Math.cos(angle), Math.sin(angle) * 0.85 + 0.2, Math.sin(angle)).normalize()
     this.sun.position.copy(focus).addScaledVector(sunDir, 120)
     this.sun.target.position.copy(focus)
-    this.sun.intensity = 0.22 + daylight * 1.95
+    this.sun.intensity = 0.3 + daylight * 2.15
     this.sun.color.set(daylight > 0.35 ? '#ffe4c1' : '#8ea5d2')
     this.skyUniforms.sun.value.copy(sunDir)
     this.skyUniforms.top.value.lerpColors(new THREE.Color('#101d3c'), new THREE.Color('#4c8ec0'), daylight)

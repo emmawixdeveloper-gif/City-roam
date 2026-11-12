@@ -19,6 +19,7 @@ export type SaveData = {
   invertY: boolean
   cameraMode: CameraMode
   cameraDistance: number
+  timeOfDay: number
   quality: Quality
   reducedMotion: boolean
   tutorialDone: boolean
@@ -40,6 +41,7 @@ export function defaultSave(): SaveData {
     invertY: false,
     cameraMode: 'tps',
     cameraDistance: 6.4,
+    timeOfDay: 8,
     quality: 'high',
     reducedMotion: false,
     tutorialDone: false,
@@ -74,6 +76,7 @@ export function parseSave(raw: string | null): SaveData {
     invertY: data.invertY === true,
     cameraMode: data.cameraMode === 'fps' || data.cameraMode === 'tps' || data.cameraMode === 'close' || data.cameraMode === 'wide' ? data.cameraMode : base.cameraMode,
     cameraDistance: typeof data.cameraDistance === 'number' && data.cameraDistance >= 2.5 && data.cameraDistance <= 12 ? data.cameraDistance : base.cameraDistance,
+    timeOfDay: typeof data.timeOfDay === 'number' && data.timeOfDay >= 0 && data.timeOfDay < 24 ? data.timeOfDay : base.timeOfDay,
     quality: data.quality === 'low' || data.quality === 'medium' || data.quality === 'high' ? data.quality : base.quality,
     reducedMotion: data.reducedMotion === true,
     tutorialDone: data.tutorialDone === true,

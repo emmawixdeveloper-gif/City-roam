@@ -27,6 +27,7 @@ async function boot(): Promise<void> {
       game.reducedMotion = d.reducedMotion
       game.setCameraMode(d.cameraMode)
       game.setCameraDistance(d.cameraDistance)
+      game.setTimeOfDay(d.timeOfDay)
     }
   }
 

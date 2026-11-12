@@ -82,3 +82,13 @@
 - [x] Make camera transitions smooth when switching perspectives.
 - [x] Save and restore the player’s preferred camera mode and distance through the existing local save system.
 - [x] Verify FPS/TPS camera behavior while walking, running, jumping, and driving through browser smoke coverage.
+
+## Day Shift starting system
+
+- [x] Make 08:00 AM the default starting time for every new game.
+- [x] Start the player at the existing basement/spawn entry during daylight and show a bright, naturally lit city when they exit.
+- [x] Add a blue daylight sky, stronger morning sunlight, readable visibility, and naturally cast shadows while preserving the existing night lighting response.
+- [x] Display DAY SHIFT at the default morning start instead of NIGHT SHIFT.
+- [x] Keep the continuous day-night cycle functional through morning, afternoon, evening, and night.
+- [x] Add a persisted Settings time-of-day control so players can intentionally choose another starting hour.
+- [x] Verify the 08:00 time, Day Shift label, and time-setting control in browser smoke coverage.

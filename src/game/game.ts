@@ -36,6 +36,7 @@ export class Game {
   private readonly vehicles: VehicleSystem
   private simTime = 0
   private time = 0
+  private startingTimeOfDay = 8
   private tutorial: Hint | null = null
   private tutorialLook = 0
   private tutorialStart = new THREE.Vector3()
@@ -64,9 +65,12 @@ export class Game {
   setCameraMode(mode: CameraMode): void { this.cam.setMode(mode) }
   setCameraDistance(distance: number): void { this.cam.setDistance(distance) }
   cycleCameraMode(): CameraMode { return this.cam.cycle() }
+  setTimeOfDay(hour: number): void { this.startingTimeOfDay = ((hour % 24) + 24) % 24; this.world.setTimeOfDay(this.startingTimeOfDay) }
+  get timeOfDay(): number { return this.world.currentTimeOfDay }
 
   start(tutorial: boolean): void {
     tuning.activate('run')
+    this.world.setTimeOfDay(this.startingTimeOfDay)
     this.vehicles?.reset()
     this.player.teleport(this.world.spawn)
     this.player.setVisible(true)

@@ -18,10 +18,11 @@ City Roam is an offline, single-player Three.js browser game prototype. This tra
 - Extend the touch layer with an interaction button and a driving-aware HUD. On foot, the left joystick, right-side drag, jump, sprint, and interact controls remain available; while driving, the same movement axes steer/throttle/reverse, jump becomes brake, and interact exits the car. Desktop uses `E` for interaction/enter/exit, `WASD` for driving, `Space` for braking, and `Shift` for a temporary speed bias.
 - Extend `src/game/camera.ts` with four functional modes: FPS, TPS, close TPS, and wide TPS. FPS places the camera at the character/car eye point and uses the same yaw/pitch look state that drives camera-relative on-foot movement; third-person modes retain the collision-aware boom with distinct distances. Mode transitions use damped position/quaternion interpolation.
 - Persist `cameraMode`, `cameraDistance`, `sensitivity`, and `invertY` through the existing versioned local save. The settings panel exposes a four-option selector and a third-person distance slider; `V` and a dedicated touch button cycle modes during play. Camera state is applied on boot, live while paused/settings are open, and while walking, jumping, or driving.
+- Start every new game at **08:00 / Day Shift**. The world clock remains continuous and advances through morning, afternoon, evening, and night; sun angle, blue sky gradient, daylight intensity, shadows, fog, windows, and streetlamps continue to react to the clock. Persist an optional time-of-day setting so testers can choose a different starting hour from Settings without disabling the cycle.
 
 ## Project structure
 
-- `src/game/world.ts`: procedural city layout, materials, lighting, collisions, landmarks, city-life destination markers, day/night update.
+- `src/game/world.ts`: procedural city layout, materials, lighting, collisions, landmarks, city-life destination markers, 08:00 Day Shift default, adjustable day/night clock update.
 - `src/game/vehicles.ts`: parked/traffic/drivable car meshes, kinematic bodies, vehicle state, AI routes, and entry/exit/handling logic.
 - `src/game/player.ts`: third-person kinematic controller, courier model, locomotion animation.
 - `src/game/camera.ts`: smooth orbit follow and collision-aware boom.
