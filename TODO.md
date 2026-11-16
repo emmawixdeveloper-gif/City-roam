@@ -45,7 +45,7 @@
 ## Verification evidence
 
 - [x] `pnpm typecheck` passes.
-- [x] `pnpm test` passes: 78 tests.
+- [x] `pnpm test` passes: 79 tests.
 - [x] `pnpm build` passes, including the asset restore step and size check.
 - [x] Preview returns HTTP 200 and `/manus-routes.json` is valid.
 - [x] `pnpm smoke` passes in Chromium: desktop movement/jump/pause/settings and mobile HUD, with no console errors.
