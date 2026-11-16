@@ -46,6 +46,7 @@ export class VehicleSystem {
   get active(): boolean { return this.activeId !== null }
   get activeVehicle(): THREE.Object3D | null { return this.find(this.activeId)?.root ?? null }
   get activeSpeed(): number { return this.find(this.activeId)?.speed ?? 0 }
+  get trafficCount(): number { return this.vehicles.filter(vehicle => vehicle.ai).length }
 
   reset(): void {
     this.activeId = null
@@ -127,7 +128,10 @@ export class VehicleSystem {
   private stepTraffic(vehicle: Vehicle, dt: number): void {
     const lane = vehicle.lane!
     const next = vehicle.root.position.clone()
-    vehicle.speed = 5 + Math.sin(performance.now() * 0.0004 + vehicle.id.length) * 0.35
+    let targetSpeed = 5.4 + Math.sin(performance.now() * 0.0004 + vehicle.id.length) * 0.55
+    const ahead = this.vehicles.find(other => other !== vehicle && other.ai && other.lane?.axis === lane.axis && other.lane.lane === lane.lane && other.lane.direction === lane.direction && this.forwardGap(vehicle, other, lane) > 0 && this.forwardGap(vehicle, other, lane) < 13)
+    if (ahead) targetSpeed = Math.min(targetSpeed, Math.max(1.2, ahead.speed * 0.72))
+    vehicle.speed = THREE.MathUtils.damp(vehicle.speed, targetSpeed, 4.5, dt)
     if (lane.axis === 'x') {
       next.x += lane.direction * vehicle.speed * dt
       if (next.x > CITY_EDGE + 4) next.x = -CITY_EDGE - 4
@@ -193,4 +197,8 @@ export class VehicleSystem {
   }
 
   private find(id: string | null): Vehicle | undefined { return id ? this.vehicles.find(vehicle => vehicle.id === id) : undefined }
+
+  private forwardGap(from: Vehicle, to: Vehicle, lane: Lane): number {
+    return lane.axis === 'x' ? (to.root.position.x - from.root.position.x) * lane.direction : (to.root.position.z - from.root.position.z) * lane.direction
+  }
 }

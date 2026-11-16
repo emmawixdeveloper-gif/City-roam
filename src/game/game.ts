@@ -12,6 +12,8 @@ import { Player, type PlayerEvent } from './player'
 import { damage, createRun, tick, type RunState } from './rules'
 import { World, type CityStatus } from './world'
 import { VehicleSystem } from './vehicles'
+import { PedestrianSystem } from './pedestrians'
+import { WeaponSystem } from './weapons'
 
 export type Mode = 'attract' | 'playing' | 'paused' | 'ended'
 export type Hint = 'move' | 'look' | 'jump'
@@ -34,6 +36,8 @@ export class Game {
   private readonly player: Player
   private readonly cam: FollowCamera
   private readonly vehicles: VehicleSystem
+  private readonly pedestrians: PedestrianSystem
+  private readonly weapons: WeaponSystem
   private simTime = 0
   private time = 0
   private startingTimeOfDay = 8
@@ -52,6 +56,8 @@ export class Game {
     this.world = new World(this.physics, renderer.shadowMapSize)
     this.player = new Player(this.physics, this.world.spawn, this.world.movers)
     this.vehicles = new VehicleSystem(this.physics, this.world.scene)
+    this.pedestrians = new PedestrianSystem(this.world.scene)
+    this.weapons = new WeaponSystem(this.world.scene, this.pedestrians)
     void this.player.loadHero(courierUrl)
     this.cam = new FollowCamera(this.physics, this.player.collider)
     this.world.scene.add(this.player.root, this.player.shadowMesh)
@@ -117,7 +123,9 @@ export class Game {
     const status = this.world.status
     const focus = this.focusPosition()
     const vehicle = this.vehicles?.status(focus) ?? { vehicle: 'vehicle.onFoot' as const, prompt: '' as const, speed: 0 }
-    return { ...status, district: this.world.districtAt(focus), destination: vehicle.prompt || this.world.destinationAt(focus), vehicle: vehicle.vehicle, camera: `camera.${this.cam.mode}` }
+    const people = this.pedestrians.status()
+    const weapon = this.weapons.status()
+    return { ...status, district: this.world.districtAt(focus), destination: vehicle.prompt || this.world.destinationAt(focus), vehicle: vehicle.vehicle, camera: `camera.${this.cam.mode}`, pedestrians: people.count, traffic: this.vehicles.trafficCount, weapon: weapon.name, weaponReady: weapon.ready, pulseHits: weapon.hits }
   }
 
   step(dt: number): void {
@@ -125,8 +133,17 @@ export class Game {
     const playing = this.mode === 'playing'
     const jumpPressed = this.input.consume('jump')
     const interactPressed = this.input.consume('interact')
+    const firePressed = this.input.consume('weaponFire')
     if (playing && this.input.consume('cameraSwitch')) this.cam.cycle()
     this.world.stepMovers()
+    const focus = this.focusPosition()
+    this.pedestrians.step(dt, focus)
+    this.weapons.step(dt)
+    if (playing && firePressed && !this.vehicles.active) {
+      const direction = new THREE.Vector3()
+      this.cam.camera.getWorldDirection(direction)
+      if (this.weapons.fire(this.cam.camera.position, direction)) this.audio.play('pulse')
+    }
     if (playing && this.vehicles?.active) {
       if (interactPressed) {
         const exit = this.vehicles.exit(this.focusPosition())
@@ -146,7 +163,7 @@ export class Game {
         jumpHeld: this.input.held('jump'),
         dashPressed: false,
       }, this.cam.yaw, events)
-    } else this.input.consume('dash')
+    } else { this.input.consume('dash'); this.input.consume('weaponFire') }
     this.physics.step(dt)
     if (!playing) return
     this.run = tick(this.run, dt)

@@ -4,13 +4,14 @@
  *
  * Call `endFrame()` once per rendered frame after gameplay consumed edge-triggered presses.
  */
-export type Action = 'jump' | 'sprint' | 'dash' | 'pause' | 'confirm' | 'back' | 'interact' | 'cameraSwitch'
+export type Action = 'jump' | 'sprint' | 'dash' | 'weaponFire' | 'pause' | 'confirm' | 'back' | 'interact' | 'cameraSwitch'
 export type InputMethod = 'keyboard' | 'gamepad' | 'touch'
 
 const KEY_BINDINGS: Record<Action, string[]> = {
   jump: ['Space'],
   sprint: ['ShiftLeft', 'ShiftRight'],
   dash: ['KeyF', 'KeyJ'],
+  weaponFire: ['KeyQ'],
   pause: ['Escape', 'KeyP'],
   confirm: ['Enter', 'NumpadEnter'],
   // Menus handle Escape/Backspace themselves via DOM keydown; `back` is the gamepad B button.
@@ -20,7 +21,7 @@ const KEY_BINDINGS: Record<Action, string[]> = {
 }
 const MOVE_KEYS = { up: ['KeyW', 'ArrowUp'], down: ['KeyS', 'ArrowDown'], left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'] }
 // Standard gamepad mapping: A=0, B=1, X=2, Y=3, LB=4, RB=5, RT=7, Start=9, L3=10.
-const PAD_BINDINGS: Record<Action, number[]> = { jump: [0], sprint: [4, 10], dash: [2, 5, 7], pause: [9], confirm: [0], back: [1], interact: [3], cameraSwitch: [6] }
+const PAD_BINDINGS: Record<Action, number[]> = { jump: [0], sprint: [4, 10], dash: [2, 5, 7], weaponFire: [2], pause: [9], confirm: [0], back: [1], interact: [3], cameraSwitch: [6] }
 
 export class Input {
   /** Movement intent in [-1, 1]: x = strafe right, y = forward. */
@@ -64,8 +65,8 @@ export class Input {
       if (e.gamepad.index === this.padIndex) this.resetPad()
     })
     on(window, 'mousedown', e => {
-      // Left click dashes while the mouse is captured for camera look.
-      if (document.pointerLockElement === canvas && e.button === 0) this.pressed_.add('dash')
+      // Left click fires the pulse tool while the mouse is captured for camera look.
+      if (document.pointerLockElement === canvas && e.button === 0) this.pressed_.add('weaponFire')
     })
     on(window, 'mousemove', e => {
       if (document.pointerLockElement !== canvas) return

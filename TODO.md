@@ -92,3 +92,11 @@
 - [x] Keep the continuous day-night cycle functional through morning, afternoon, evening, and night.
 - [x] Add a persisted Settings time-of-day control so players can intentionally choose another starting hour.
 - [x] Verify the 08:00 time, Day Shift label, and time-setting control in browser smoke coverage.
+
+## Living city and safe action systems — complete
+
+- [x] Add civilian pedestrians throughout sidewalks, parks, and commercial streets with readable low-poly human silhouettes, deterministic walking routes, simple avoidance, and a panic/flee response to nearby pulse impacts.
+- [x] Upgrade road traffic AI with lane-following, speed variation, separation gaps, bounded intersection behavior, and visible traffic continuing while the player explores on foot or drives.
+- [x] Add a fictional, non-graphic pulse weapon/tool with desktop and mobile fire controls, cooldown feedback, a short-lived tracer/muzzle visual, and civilian reactions without blood or graphic injury.
+- [x] Keep pedestrians, traffic, and pulse effects performant on low-end mobile devices and preserve the existing single-player/offline architecture.
+- [x] Expose population, traffic, and pulse-tool state in the responsive HUD with localized English and Simplified Chinese copy.

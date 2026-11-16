@@ -5,7 +5,7 @@
  * The starter ships no audio files: SFX are synthesized and the music is a generative ambient
  * pad. To use recorded assets, `load(url)` an AudioBuffer and `playBuffer()` it on either bus.
  */
-export type Sfx = 'pickup' | 'jump' | 'land' | 'hurt' | 'ui' | 'win' | 'lose' | 'dash'
+export type Sfx = 'pickup' | 'jump' | 'land' | 'hurt' | 'ui' | 'win' | 'lose' | 'dash' | 'pulse'
 
 export class Audio {
   readonly ctx: AudioContext
@@ -78,6 +78,7 @@ export class Audio {
       case 'hurt': tone(220, 90, 0.28, 'sawtooth', 0.22); break
       case 'ui': tone(660, 700, 0.06, 'triangle', 0.18); break
       case 'dash': tone(500, 180, 0.18, 'sawtooth', 0.1); break
+      case 'pulse': tone(920, 180, 0.11, 'triangle', 0.16); tone(260, 70, 0.16, 'sine', 0.08, 0.03); break
       case 'win': [523, 659, 784, 1047].forEach((f, i) => tone(f, f * 1.01, 0.3, 'triangle', 0.25, i * 0.11)); break
       case 'lose': [392, 330, 262].forEach((f, i) => tone(f, f * 0.98, 0.38, 'sine', 0.25, i * 0.16)); break
     }

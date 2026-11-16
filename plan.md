@@ -2,7 +2,7 @@
 
 ## Scope
 
-City Roam is an offline, single-player Three.js browser game prototype. This transformation keeps the existing project and turns the current roam prototype into a city-life sandbox: the player can explore a more legible set of urban districts, approach interactable destinations, enter and exit cars, drive with arcade handling, and share the roads with lightweight AI traffic. The existing Three.js, Rapier, renderer, input, audio, asset-loader, save, tuning, and UI architecture remain in place.
+City Roam is an offline, single-player Three.js browser game prototype. This transformation keeps the existing project and turns the current roam prototype into a city-life sandbox: the player can explore a more legible set of urban districts, approach interactable destinations, enter and exit cars, drive with grounded arcade handling, share the roads with lightweight AI traffic, encounter civilian pedestrians, and use a fictional non-graphic pulse tool. The existing Three.js, Rapier, renderer, input, audio, asset-loader, save, tuning, and UI architecture remain in place.
 
 ## Implementation approach
 
@@ -17,13 +17,17 @@ City Roam is an offline, single-player Three.js browser game prototype. This tra
 - Expand the world with readable city-life destinations—shops, supermarket, restaurants, shopping centre, petrol station, residential pocket, civic park, and highway connectors—using inexpensive procedural meshes and collision geometry. Add an interaction registry so the HUD can surface nearby destination/car prompts without adding server state.
 - Extend the touch layer with an interaction button and a driving-aware HUD. On foot, the left joystick, right-side drag, jump, sprint, and interact controls remain available; while driving, the same movement axes steer/throttle/reverse, jump becomes brake, and interact exits the car. Desktop uses `E` for interaction/enter/exit, `WASD` for driving, `Space` for braking, and `Shift` for a temporary speed bias.
 - Extend `src/game/camera.ts` with four functional modes: FPS, TPS, close TPS, and wide TPS. FPS places the camera at the character/car eye point and uses the same yaw/pitch look state that drives camera-relative on-foot movement; third-person modes retain the collision-aware boom with distinct distances. Mode transitions use damped position/quaternion interpolation.
+- Add `src/game/pedestrians.ts` as a low-cost civilian population layer: deterministic sidewalk routes, readable low-poly humans, simple avoidance/panic reactions, and distance-capped updates for mobile performance. Add `src/game/weapons.ts` as a fictional pulse system with a cooldown, muzzle/tracer visual, ray-based civilian reaction, and no graphic injury simulation.
+- Upgrade `src/game/vehicles.ts` traffic from four looping cars to route-aware lightweight AI with lane following, speed variation, stopping gaps, and bounded intersections. Keep all traffic kinematic and non-multiplayer.
 - Persist `cameraMode`, `cameraDistance`, `sensitivity`, and `invertY` through the existing versioned local save. The settings panel exposes a four-option selector and a third-person distance slider; `V` and a dedicated touch button cycle modes during play. Camera state is applied on boot, live while paused/settings are open, and while walking, jumping, or driving.
 - Start every new game at **08:00 / Day Shift**. The world clock remains continuous and advances through morning, afternoon, evening, and night; sun angle, blue sky gradient, daylight intensity, shadows, fog, windows, and streetlamps continue to react to the clock. Persist an optional time-of-day setting so testers can choose a different starting hour from Settings without disabling the cycle.
 
 ## Project structure
 
 - `src/game/world.ts`: procedural city layout, materials, lighting, collisions, landmarks, city-life destination markers, 08:00 Day Shift default, adjustable day/night clock update.
-- `src/game/vehicles.ts`: parked/traffic/drivable car meshes, kinematic bodies, vehicle state, AI routes, and entry/exit/handling logic.
+- `src/game/vehicles.ts`: parked/traffic/drivable car meshes, kinematic bodies, vehicle state, AI routes, speed gaps, and entry/exit/handling logic.
+- `src/game/pedestrians.ts`: civilian meshes, sidewalk route schedules, avoidance, and panic reactions.
+- `src/game/weapons.ts`: fictional pulse tool, cooldown state, ray hit reaction, and short-lived visual tracer.
 - `src/game/player.ts`: third-person kinematic controller, courier model, locomotion animation.
 - `src/game/camera.ts`: smooth orbit follow and collision-aware boom.
 - `src/game/camera.ts`: smooth FPS/TPS/close-TPS/wide-TPS camera, collision handling, mode cycling, distance preference, and transition interpolation.
